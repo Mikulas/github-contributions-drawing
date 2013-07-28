@@ -5,12 +5,7 @@
  * @author Mikulas Dite
  * @license BDS-3
  *
- * USAGE:
- * 1. update $pattern
- * 	 a. for each whitespace in the leftmost column, write a dash -
- * 	 b. draw in the rest of fields, dot is white, hash is colored
- * 2. specify what date is on the very first dot (going by column)
- * 3. push repo in ./draw_repo to Github
+ * @see README.md
  */
 
 $pattern = trim('
@@ -48,14 +43,26 @@ if (count($serialize) !== 371) {
 	die(2);
 }
 
+if (file_exists('draw_repo')) {
+	echo "directory draw_repo already exists, remove it first\n";
+	die(3);
+}
 exec('mkdir draw_repo; cd draw_repo; git init; touch draw; git add draw');
 
 $date = $firstDate;
 $day = new DateInterval('P1D');
 foreach ($serialize as $c) {
 	switch ($c) {
+		case '4':
+			commit($date);
+		case '3':
+			commit($date);
+		case '2':
+			commit($date);
+		case '1':
 		case '#':
 			commit($date);
+		case '0':
 		case '.':
 			$date = $date->add($day);
 		case '-':
@@ -66,7 +73,8 @@ foreach ($serialize as $c) {
 function commit($date, $user, $email)
 {
 	$d = $date->format('c');
-	$exec = "cd draw_repo && echo $d > draw && \
+	$e = $d . '_' . mt_rand(1e11, 1e12 - 1);
+	$exec = "cd draw_repo && echo $e > draw && \
 		GIT_AUTHOR_DATE=\"$d\" \
 		GIT_COMMITTER_DATE=\"$d\" \
 		GIT_COMMITTER_NAME=\"$user\" \
